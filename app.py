@@ -9,14 +9,14 @@ st.markdown("""
     <style>
     .main { background-color: #0e1117; }
     h1 { color: #00d4ff; text-align: center; font-family: sans-serif; text-shadow: 2px 2px #000; }
-    .stMetric { border: 1px solid #00d4ff; padding: 10px; border-radius: 10px; }
+    .stMetric { border: 1px solid #00d4ff; padding: 10px; border-radius: 10px; background-color: #1a1c23; }
     </style>
     """, unsafe_allow_html=True)
 
 st.title("JARVIS CORE v1.0")
 
-# YENİ API ANAHTARINIZ (Tam ve Boşluksuz)
-GEMINI_KEY = 'AIzaSyCjy_mRLq4H0RqnrFu4hckIjuKtq4w3jZU'
+# EN YENİ API ANAHTARINIZ
+GEMINI_KEY = 'AIzaSyAVJgBwg5pqVVjxbWTHJa6O_8XP6X_B0_w'
 
 genai.configure(api_key=GEMINI_KEY)
 model = genai.GenerativeModel('gemini-pro')
@@ -28,7 +28,7 @@ try:
     st.metric(label="ASELSAN HİSSE DEĞERİ", value=f"{fiyat} TL")
 except:
     fiyat = "Bilinmiyor"
-    st.warning("Borsa verisine ulaşılamadı.")
+    st.warning("Borsa verisine şu an ulaşılamadı.")
 
 # SİSTEMİ ATEŞLE
 if st.button("SİSTEMİ ATEŞLE"):
@@ -52,4 +52,4 @@ if st.button("SİSTEMİ ATEŞLE"):
                 
         except Exception as e:
             st.error(f"Sistem Hatası: {e}")
-            st.write("Not: Yeni anahtarların aktifleşmesi bazen 2-3 dakika sürebilir.")
+            st.write("Not: Eğer 'Key not valid' hatası devam ederse, lütfen 3-4 dakika bekleyip sayfayı yenileyin. Google yeni anahtarları bazen geç aktif ediyor.")
