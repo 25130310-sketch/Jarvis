@@ -2,54 +2,37 @@ import streamlit as st
 import yfinance as yf
 import google.generativeai as genai
 
-# ARAYÜZ AYARLARI
+# ARAYÜZ TASARIMI
 st.set_page_config(page_title="Jarvis AI", layout="centered")
+st.markdown("<h1 style='text-align: center; color: #00d4ff;'>JARVIS CORE v1.0</h1>", unsafe_allow_html=True)
 
-st.markdown("""
-    <style>
-    .main { background-color: #0e1117; }
-    h1 { color: #00d4ff; text-align: center; font-family: sans-serif; text-shadow: 2px 2px #000; }
-    .stMetric { border: 1px solid #00d4ff; padding: 10px; border-radius: 10px; background-color: #1a1c23; }
-    </style>
-    """, unsafe_allow_html=True)
+# EN SON VERDİĞİNİZ ANAHTAR
+GEMINI_KEY = 'AIzaSyAVJgBwg5pqVVjxbWTHJa6O_8XP6X_B0_w'.strip()
 
-st.title("JARVIS CORE v1.0")
-
-# EN YENİ API ANAHTARINIZ
-GEMINI_KEY = 'AIzaSyAVJgBwg5pqVVjxbWTHJa6O_8XP6X_B0_w'
-
-genai.configure(api_key=GEMINI_KEY)
-model = genai.GenerativeModel('gemini-pro')
+# TEST FONKSİYONU
+def sistemi_kontrol_et():
+    try:
+        genai.configure(api_key=GEMINI_KEY)
+        model = genai.GenerativeModel('gemini-pro')
+        # Küçük bir test mesajı gönderiyoruz
+        response = model.generate_content("Test")
+        return True, "Sistem Aktif"
+    except Exception as e:
+        return False, str(e)
 
 # BORSA VERİSİ
-try:
-    asels = yf.Ticker("ASELS.IS").history(period="1d")
-    fiyat = round(asels['Close'].iloc[-1], 2)
-    st.metric(label="ASELSAN HİSSE DEĞERİ", value=f"{fiyat} TL")
-except:
-    fiyat = "Bilinmiyor"
-    st.warning("Borsa verisine şu an ulaşılamadı.")
+asels = yf.Ticker("ASELS.IS").history(period="1d")
+fiyat = round(asels['Close'].iloc[-1], 2)
+st.metric("ASELSAN", f"{fiyat} TL")
 
-# SİSTEMİ ATEŞLE
 if st.button("SİSTEMİ ATEŞLE"):
-    with st.spinner('Jarvis protokolleri başlatıyor...'):
-        try:
-            # Analiz mesajı
-            prompt = f"Sen JARVIS'sin. Aselsan fiyatı {fiyat} TL. Iron Man'e havalı, kısa ve Türkçe bir rapor ver. Özel karakter kullanma."
-            response = model.generate_content(prompt)
-            rapor = response.text.replace("'", "")
-            
-            st.info(f"JARVIS: {rapor}")
-            
-            # SESLENDİRME (iPad Uyumlu)
-            st.components.v1.html(f"""
-                <script>
-                var msg = new SpeechSynthesisUtterance("{rapor}");
-                msg.lang = "tr-TR";
-                window.speechSynthesis.speak(msg);
-                </script>
-                """, height=0)
-                
-        except Exception as e:
-            st.error(f"Sistem Hatası: {e}")
-            st.write("Not: Eğer 'Key not valid' hatası devam ederse, lütfen 3-4 dakika bekleyip sayfayı yenileyin. Google yeni anahtarları bazen geç aktif ediyor.")
+    is_ok, mesaj = sistemi_kontrol_et()
+    
+    if is_ok:
+        st.success("Jarvis Bağlantısı Başarılı!")
+        model = genai.GenerativeModel('gemini-pro')
+        res = model.generate_content(f"Aselsan {fiyat} TL. Havalı bir rapor ver.")
+        st.info(res.text)
+    else:
+        st.error(f"Bağlantı Kurulamadı: {mesaj}")
+        st.warning("Eğer 'API_KEY_INVALID' yazıyorsa, Google anahtarı henüz onaylamamış demektir. Lütfen 5-10 dakika bekleyin.")
